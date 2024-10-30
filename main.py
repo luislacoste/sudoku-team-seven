@@ -72,7 +72,7 @@ def generate_sudoku(dificultad):
     return board
 
 
-dificultad = 3
+dificultad = int(input("Ingrese la dificultad del Sudoku \n 1. Facil \n 2. Medio \n 3. Dificil \n"))
 # Generar y resolver un tablero de Sudoku
 sudoku_board = generate_sudoku(dificultad)
 print("Tablero de Sudoku inicial:")
