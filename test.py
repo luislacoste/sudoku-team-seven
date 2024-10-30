@@ -3,37 +3,32 @@ import random
 # Tamaño del tablero
 N = 9
 # Tamaño de cada subcuadro (2x4 en este caso)
-SUBCUADRO = 3
-
+SUBGRID_ROWS = 3
+SUBGRID_COLS = 3
 
 def print_board(board):
     for row in board:
         print(" ".join(str(num) if num != 0 else '.' for num in row))
 
-
 def is_safe(board, row, col, num):
-    # Verifica que la celda no contenga numero
-    if board[row][col] != 0:
-        return False
     # Verificar fila
     if num in board[row]:
         return False
-
+    
     # Verificar columna
     for r in range(N):
         if board[r][col] == num:
             return False
 
     # Verificar subcuadro
-    start_row = row - row % SUBCUADRO
-    start_col = col - col % SUBCUADRO
-    for r in range(SUBCUADRO):
-        for c in range(SUBCUADRO):
+    start_row = row - row % SUBGRID_ROWS
+    start_col = col - col % SUBGRID_COLS
+    for r in range(SUBGRID_ROWS):
+        for c in range(SUBGRID_COLS):
             if board[start_row + r][start_col + c] == num:
                 return False
-
+                
     return True
-
 
 def solve_sudoku(board):
     for row in range(N):
@@ -44,22 +39,15 @@ def solve_sudoku(board):
                         board[row][col] = num  # Asigna el número
                         if solve_sudoku(board):
                             return True
-                        # Deshace la asignación (backtrack)
-                        board[row][col] = 0
+                        board[row][col] = 0  # Deshace la asignación (backtrack)
                 return False
     return True
 
-
-def generate_sudoku(dificultad):
+def generate_sudoku():
     board = [[0] * N for _ in range(N)]
-    if dificultad == 1:
-        numeros_completos = random.randint(35, 50)
-    elif dificultad == 2:
-        numeros_completos = random.randint(22, 34)
-    elif dificultad == 3:
-        numeros_completos = random.randint(10, 21)
+    
     # Llenar algunas celdas al azar para iniciar la resolución
-    for _ in range(numeros_completos):  # Rellenar entre 16 y 32 celdas
+    for _ in range(random.randint(16, 32)):  # Rellenar entre 16 y 32 celdas
         row = random.randint(0, N - 1)
         col = random.randint(0, N - 1)
         num = random.randint(1, N)
@@ -71,10 +59,8 @@ def generate_sudoku(dificultad):
 
     return board
 
-
-dificultad = 3
 # Generar y resolver un tablero de Sudoku
-sudoku_board = generate_sudoku(dificultad)
+sudoku_board = generate_sudoku()
 print("Tablero de Sudoku inicial:")
 print_board(sudoku_board)
 
