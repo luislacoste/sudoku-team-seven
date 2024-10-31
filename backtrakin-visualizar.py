@@ -1,4 +1,6 @@
 import random
+import time
+import os
 
 # Tamaño del tablero
 tamaño_tablero = 9
@@ -7,8 +9,10 @@ SUBCUADRO = 3
 
 
 def print_board(board):
+    os.system('clear' if os.name == 'posix' else 'cls')  # Limpiar pantalla
     for row in board:
-        print(" ".join(str(num) if num != 0 else '.' for num in row))
+        print(" ".join(f"\033[92m{num}\033[0m" if num != 0 else '.' for num in row))
+    time.sleep(0.03)  # Pausar para visualizar el progreso
 
 
 def is_safe(board, row, col, num):
@@ -42,10 +46,12 @@ def solve_sudoku(board):
                 for num in range(1, tamaño_tablero + 1):
                     if is_safe(board, row, col, num):
                         board[row][col] = num  # Asigna el número
+                        print_board(board)  # Mostrar intento
                         if solve_sudoku(board):
                             return True
                         # Deshace la asignación (backtrack)
                         board[row][col] = 0
+                        print_board(board)  # Mostrar retroceso
                 return False
     return True
 
@@ -73,18 +79,18 @@ def generate_sudoku(dificultad):
 
 
 def main():
-  dificultad = int(input("Ingrese la dificultad del Sudoku \n 1. Facil \n 2. Medio \n 3. Dificil \n"))
-  # Generar y resolver un tablero de Sudoku
-  sudoku_board = generate_sudoku(dificultad)
-  print("Tablero de Sudoku inicial:")
-  print(sudoku_board)
-  # print_board(sudoku_board)
+    dificultad = int(input("Ingrese la dificultad del Sudoku \n 1. Facil \n 2. Medio \n 3. Dificil \n"))
+    # Generar y resolver un tablero de Sudoku
+    sudoku_board = generate_sudoku(dificultad)
+    print("Tablero de Sudoku inicial:")
+    print_board(sudoku_board)
 
-  if solve_sudoku(sudoku_board):
-      print("\nTablero de Sudoku resuelto:")
-      print_board(sudoku_board)
-  else:
-      print("No se pudo resolver el Sudoku.")
+    if solve_sudoku(sudoku_board):
+        print("\nTablero de Sudoku resuelto:")
+        print_board(sudoku_board)
+        
+    else:
+        print("No se pudo resolver el Sudoku.")
 
 
 if __name__ == "__main__":
