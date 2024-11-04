@@ -1,17 +1,60 @@
 import random
-import time
-import os
 
-# Tamaño del tablero
-tamaño_tablero = 9
-# Tamaño de cada subcuadro
-SUBCUADRO = 3
+# Función para verificar si un número es válido en la posición (fila, columna)
+def es_valido(tablero, fila, columna, num):
+    # Verificar fila y columna
+    for x in range(9):
+        if tablero[fila][x] == num or tablero[x][columna] == num:
+            return False
+    # Verificar el subtablero de 3x3
+    inicio_fila, inicio_col = 3 * (fila // 3), 3 * (columna // 3)
+    for i in range(3):
+        for j in range(3):
+            if tablero[inicio_fila + i][inicio_col + j] == num:
+                return False
+    return True
 
-def print_board(board):
-    os.system('clear' if os.name == 'posix' else 'cls')  # Limpiar pantalla
-    for row in board:
-        print(" ".join(f"\033[92m{num}\033[0m" if num != 0 else '.' for num in row))
-    time.sleep(0.03)  # Pausar para visualizar el progreso
+# Función recursiva de Backtracking para llenar el tablero
+def llenar_tablero(tablero):
+    for fila in range(9):
+        for columna in range(9):
+            if tablero[fila][columna] == 0:
+                numeros = list(range(1, 10))
+                random.shuffle(numeros)  # Mezcla para mayor variabilidad
+                for num in numeros:
+                    if es_valido(tablero, fila, columna, num):
+                        tablero[fila][columna] = num
+                        if llenar_tablero(tablero):
+                            return True
+                        tablero[fila][columna] = 0
+                return False
+    return True
+
+# Elimina números aleatoriamente para crear el tablero incompleto
+def eliminar_numeros(tablero, vacios=40):
+    casillas = [(i, j) for i in range(9) for j in range(9)]
+    random.shuffle(casillas)
+    for i in range(vacios):
+        fila, columna = casillas[i]
+        tablero[fila][columna] = 0
+
+# Genera un tablero de Sudoku completo y luego le quita números
+def generar_sudoku(vacios=40):
+    tablero = [[0 for _ in range(9)] for _ in range(9)]
+    llenar_tablero(tablero)
+    eliminar_numeros(tablero, vacios)
+    return tablero
+
+# Imprime el tablero en un formato legible
+def imprimir_tablero(tablero):
+    for fila in range(9):
+        print(" ".join(str(num) if num != 0 else '.' for num in tablero[fila]))
+
+# Genera un tablero de Sudoku y lo imprime
+tablero_sudoku = generar_sudoku()
+imprimir_tablero(tablero_sudoku)
+
+
 
 def is_safe(board, row, col, num):
     # Verifica que la celda no contenga numero
@@ -22,76 +65,37 @@ def is_safe(board, row, col, num):
         return False
 
     # Verificar columna
-    for r in range(tamaño_tablero):
+    for r in range(9):
         if board[r][col] == num:
             return False
 
     # Verificar subcuadro
-    start_row = row - row % SUBCUADRO
-    start_col = col - col % SUBCUADRO
-    for r in range(SUBCUADRO):
-        for c in range(SUBCUADRO):
+    start_row = row - row % 3
+    start_col = col - col % 3
+    for r in range(3):
+        for c in range(3):
             if board[start_row + r][start_col + c] == num:
                 return False
 
     return True
 
-def solve_subgrid(board, start_row, start_col):
-    for row in range(start_row, start_row + SUBCUADRO):
-        for col in range(start_col, start_col + SUBCUADRO):
+
+def solve_sudoku(board):
+    for row in range(9):
+        for col in range(9):
             if board[row][col] == 0:  # Busca una celda vacía
-                for num in range(1, tamaño_tablero + 1):
+                for num in range(1, 9 + 1):
                     if is_safe(board, row, col, num):
                         board[row][col] = num  # Asigna el número
-                        print_board(board)  # Mostrar intento
-                        if solve_subgrid(board, start_row, start_col):
+                        
+                        if solve_sudoku(board):
                             return True
                         # Deshace la asignación (backtrack)
                         board[row][col] = 0
-                        print_board(board)  # Mostrar retroceso
+                        
                 return False
     return True
 
-def solve_sudoku_by_subgrids(board):
-    for start_row in range(0, tamaño_tablero, SUBCUADRO):
-        for start_col in range(0, tamaño_tablero, SUBCUADRO):
-            if not solve_subgrid(board, start_row, start_col):
-                return False
-    return True
 
-def generate_sudoku(dificultad):
-    board = [[0] * tamaño_tablero for _ in range(tamaño_tablero)]
-    if dificultad == 1:
-        numeros_completos = random.randint(35, 50)
-    elif dificultad == 2:
-        numeros_completos = random.randint(22, 34)
-    elif dificultad == 3:
-        numeros_completos = random.randint(10, 21)
-    # Llenar algunas celdas al azar para iniciar la resolución
-    for _ in range(numeros_completos):  # Rellenar entre 16 y 32 celdas
-        row = random.randint(0, tamaño_tablero - 1)
-        col = random.randint(0, tamaño_tablero - 1)
-        num = random.randint(1, tamaño_tablero)
-        while not is_safe(board, row, col, num):
-            row = random.randint(0, tamaño_tablero - 1)
-            col = random.randint(0, tamaño_tablero - 1)
-            num = random.randint(1, tamaño_tablero)
-        board[row][col] = num
+print(solve_sudoku(tablero_sudoku))
 
-    return board
-
-def main():
-    dificultad = int(input("Ingrese la dificultad del Sudoku \n 1. Facil \n 2. Medio \n 3. Dificil \n"))
-    # Generar y resolver un tablero de Sudoku
-    sudoku_board = generate_sudoku(dificultad)
-    print("Tablero de Sudoku inicial:")
-    print_board(sudoku_board)
-
-    if solve_sudoku_by_subgrids(sudoku_board):
-        print("\nTablero de Sudoku resuelto:")
-        print_board(sudoku_board)
-    else:
-        print("No se pudo resolver el Sudoku.")
-
-if __name__ == "__main__":
-    main()
