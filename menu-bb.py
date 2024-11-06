@@ -14,10 +14,10 @@ def print_board(board):
     for row in board:
         print(" ".join(f"\033[92m{num}\033[0m" if num !=
               0 else '.' for num in row))
-    time.sleep(0.03)  # Pausar para visualizar el progreso
+    time.sleep(0.3)  # Pausar para visualizar el progreso
 
 
-def es_valido(tablero, fila, columna, num):
+def es_valido(tablero, fila, columna, num): #Diferencia con is_safe
     # Verificar fila y columna
     for x in range(CUADRADO):
         if tablero[fila][x] == num or tablero[x][columna] == num:
@@ -39,6 +39,7 @@ def eliminar_numeros(tablero, numeros_eliminar):
         fila, columna = casillas[i]
         tablero[fila][columna] = 0
     return tablero
+
 
 def auto_gen_board_bb(tablero):
     for fila in range(CUADRADO):
@@ -128,17 +129,20 @@ def get_least_options_cell(board):
     for row in range(CUADRADO):
         for col in range(CUADRADO):
             if board[row][col] == 0:
-                options = sum(1 for num in range(1, CUADRADO + 1) if is_safe(board, row, col, num)) # Verificar funcionamiento de esta funcion (Decide la celda con menos opciones)
+                options = sum(1 for num in range(1, CUADRADO + 1) if is_safe(board, row, col, num)) # Verificar funcionamiento. En un caso prefirio no poner numero en una columna que tenia 8/9 numeros y la segunda mejor opcion tenia 7/9
                 if options < min_options:
                     min_options = options
                     best_cell = (row, col)
-    return best_cell
+    return best_cell, min_options
 
 def branch_and_bound_sudoku(board):
-    empty_location = get_least_options_cell(board)
+    empty_location, min_options = get_least_options_cell(board)
     if empty_location is None:
         return True  # Si no hay celdas vacías, se encontró una solución
 
+    if min_options == 0:
+        return False
+    
     row, col = empty_location
 
     # Intentar números del 1 al 9
