@@ -14,10 +14,10 @@ def print_board(board):
     for row in board:
         print(" ".join(f"\033[92m{num}\033[0m" if num !=
               0 else '.' for num in row))
-    time.sleep(0.03)  # Pausar para visualizar el progreso
+    time.sleep(0.3)  # Pausar para visualizar el progreso
 
 
-def es_valido(tablero, fila, columna, num):
+def es_valido(tablero, fila, columna, num): #Diferencia con is_safe
     # Verificar fila y columna
     for x in range(CUADRADO):
         if tablero[fila][x] == num or tablero[x][columna] == num:
@@ -40,25 +40,21 @@ def eliminar_numeros(tablero, numeros_eliminar):
         tablero[fila][columna] = 0
     return tablero
 
+
 def auto_gen_board_bb(tablero):
-    
-    
     for fila in range(CUADRADO):
-        
-        
         for columna in range(CUADRADO):
             if tablero[fila][columna] == 0:
                 numeros = list(range(1, 10))
                 random.shuffle(numeros)  # Mezcla para mayor variabilidad
-                
                 for num in numeros:
                     if es_valido(tablero, fila, columna, num):
                         tablero[fila][columna] = num
-                        if auto_gen_board_bb(tablero):
-                            return True
+                        if auto_gen_board_bb(tablero):  # Se fija si puede generar el tablero con lo que va poniendo
+                            return tablero
                         tablero[fila][columna] = 0
                 return False
-    return True
+    return tablero
 
 
 # ESTE VA A SER USADO PARA EL USER INPUT
@@ -101,7 +97,6 @@ def generar_tablero(modo, dificultad, algo):
         numeros_completos = random.randint(22, 34)
     elif dificultad == 3:
         numeros_completos = random.randint(10, 21)
-
     numeros_eliminar = 81 - numeros_completos
 
     if modo == 1:
@@ -111,10 +106,9 @@ def generar_tablero(modo, dificultad, algo):
         is_board_valid = validate_board(board)
     else:
         if algo == 1:
-            board = auto_gen_board_bt(dificultad)
+            board = auto_gen_board_bb(dificultad)
         else:
-            board = auto_gen_board_bb(board)
-        
+            board = auto_gen_board_bb(board) # auto_gen_board retornaba un booleano si se pudo generar el tablero o no, cambiado para que retorne el tablero
         # board = auto_gen_board_bt(dificultad)
         eliminar_numeros(board, numeros_eliminar)
     return board
@@ -129,11 +123,26 @@ def get_empty_location(board):
                 return row, col
     return None
 
+def get_least_options_cell(board):
+    min_options = CUADRADO + 1
+    best_cell = None
+    for row in range(CUADRADO):
+        for col in range(CUADRADO):
+            if board[row][col] == 0:
+                options = sum(1 for num in range(1, CUADRADO + 1) if is_safe(board, row, col, num)) # Verificar funcionamiento. En un caso prefirio no poner numero en una columna que tenia 8/9 numeros y la segunda mejor opcion tenia 7/9
+                if options < min_options:
+                    min_options = options
+                    best_cell = (row, col)
+    return best_cell, min_options
+
 def branch_and_bound_sudoku(board):
-    empty_location = get_empty_location(board)
+    empty_location, min_options = get_least_options_cell(board)
     if empty_location is None:
         return True  # Si no hay celdas vacías, se encontró una solución
 
+    if min_options == 0:
+        return False
+    
     row, col = empty_location
 
     # Intentar números del 1 al 9
