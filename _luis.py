@@ -22,20 +22,6 @@ def print_board(board, options=None):
     time.sleep(0.3)  # Pausar para visualizar el progreso
 
 
-def es_valido(tablero, fila, columna, num):
-    # Verificar fila y columna
-    for x in range(CUADRADO):
-        if tablero[fila][x] == num or tablero[x][columna] == num:
-            return False
-    # Verificar el subtablero de 3x3
-    inicio_fila, inicio_col = 3 * (fila // 3), 3 * (columna // 3)
-    for i in range(SUBCUADRO):
-        for j in range(SUBCUADRO):
-            if tablero[inicio_fila + i][inicio_col + j] == num:
-                return False
-    return True
-
-
 def eliminar_numeros(tablero, numeros_eliminar):
     casillas = [(i, j) for i in range(9) for j in range(9)]
     random.shuffle(casillas)
@@ -52,7 +38,7 @@ def auto_gen_board_bb(tablero):
                 numeros = list(range(1, 10))
                 random.shuffle(numeros)  # Mezcla para mayor variabilidad
                 for num in numeros:
-                    if es_valido(tablero, fila, columna, num):
+                    if is_safe(tablero, fila, columna, num):
                         tablero[fila][columna] = num
                         if auto_gen_board_bb(tablero):
                             return tablero
@@ -92,7 +78,10 @@ def user_gen_board():
 
 
 def generar_tablero(modo, dificultad, algo):
+    # Generar tablero vacío lista de listas
     board = [[0] * CUADRADO for _ in range(CUADRADO)]
+    
+    # Definir cantidad de números a completar
     if dificultad == 1:
         numeros_completos = random.randint(35, 50)
     elif dificultad == 2:
@@ -101,13 +90,18 @@ def generar_tablero(modo, dificultad, algo):
         numeros_completos = random.randint(10, 21)
     numeros_eliminar = 81 - numeros_completos
 
+    
     if modo == 1:
+        # Usuario rellena el tablero
         board = user_gen_board()
     else:
         if algo == 1:
-            board = auto_gen_board_bb(board)
+            # Tablero generado con backtracking
+            board = auto_gen_board_bt(board)
         else:
+            # Tablero generado con branch and bound
             board = auto_gen_board_bb(board)
+        # Eliminar números para generar tablero con dificultad
         eliminar_numeros(board, numeros_eliminar)
     return board
 
