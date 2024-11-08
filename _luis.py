@@ -158,7 +158,7 @@ def branch_and_bound_sudoku(board):
 def main():
     algo = 2
     modo = 2
-    dificultad = 3
+    dificultad = 1
     board = generar_tablero(modo, dificultad, algo)
     print_board(board)
     branch_and_bound_sudoku(board)
