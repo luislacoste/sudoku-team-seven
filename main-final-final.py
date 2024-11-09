@@ -9,8 +9,25 @@ CUADRADO = 9
 SUBCUADRO = 3
 
 
+def medir_tiempo_ejecucion(func, *args, **kwargs):
+    # Captura el tiempo antes de ejecutar la función
+    inicio = time.time()
+
+    # Ejecuta la función con los argumentos proporcionados
+    resultado = func(*args, **kwargs)
+
+    # Captura el tiempo después de ejecutar la función
+    fin = time.time()
+
+    # Calcula el tiempo de ejecución
+    tiempo_ejecucion = fin - inicio
+
+    print(f"{func.__name__}: {tiempo_ejecucion:.6f} segundos")
+
+    return resultado
+
+
 def print_board(board):
-    """Imprime el tablero de Sudoku con formato adecuado."""
     time.sleep(0.3)  # Pausar para visualizar el progreso
 
     os.system('clear' if os.name == 'posix' else 'cls')  # Limpiar pantalla
@@ -43,7 +60,7 @@ def get_least_options_cell(board):
     return best_cell, min_options
 
 
-def branch_and_bound(tablero, generando = False):
+def branch_and_bound(tablero, generando=False):
     empty_location, min_options = get_least_options_cell(tablero)
     if empty_location is None:
         return True  # Si no hay celdas vacías, se encontró una solución
@@ -54,11 +71,6 @@ def branch_and_bound(tablero, generando = False):
     # False para indicar que esta rama del algoritmo de búsqueda no puede conducir
     # a una solución válida y debe ser descartada.
     if min_options == 0:
-        # print_board(tablero)
-        # print('VOLDIENDO PARA ATRAS ATENCIONNN')
-        # row, col = empty_location
-        # print(f"VOLVIENDO PARA ATRAS EN {row}, {col}")
-        # input('Enter para continuar')
         return False
 
     row, col = empty_location
@@ -66,20 +78,16 @@ def branch_and_bound(tablero, generando = False):
     # Intentar números del 1 al 9
     for num in range(1, CUADRADO + 1):
         if es_valido(tablero, row, col, num):
-            if generando == False: print_board(tablero)
+            # if generando == False: print_board(tablero)
             tablero[row][col] = num
 
             # Recursivamente llamar a la función para el siguiente paso
             if branch_and_bound(tablero, generando):
                 return True
 
-            # print('Esto voy a borrar')
-            # print(f"VOLVIENDO PARA ATRAS EN {row}, {col}")
-            # input('Enter para continuar2')
-            
             # Deshacer la asignación (backtrack)
             tablero[row][col] = 0
-            if generando == False: print_board(tablero)
+            # if generando == False: print_board(tablero)
 
     return False
 
@@ -109,7 +117,7 @@ def es_valido(board, row, col, num):
 # Falta comentarios
 def back_tracking(tablero):
     for fila in range(CUADRADO):
-        print_board(tablero)
+        # print_board(tablero)
         for columna in range(CUADRADO):
             if tablero[fila][columna] == 0:
                 numeros = list(range(1, 10))
@@ -168,70 +176,57 @@ def valid_input(prompt, valid_choices):
         except ValueError:
             print("Error, elige bien las opciones!")
 
-# def user_gen_board():
-#     """Genera un tablero ingresado manualmente por el usuario."""
-#     board = []
-#     for i in range(tamaño_tablero):
-#         print(f"Ingrese la fila {i + 1} del tablero (9 números entre 1 y 9, 0 para vacíos):")
-#         while True:
-#             try:
-#                 row = list(map(int, input().split()))
-#                 if len(row) != tamaño_tablero or any(num < 0 or num > 9 for num in row):
-#                     raise ValueError("Debe ingresar exactamente 9 números entre 0 y 9.")
-#                 board.append(row)
-#                 break
-#             except ValueError as e:
-#                 print(f"Entrada no válida. {e}")
-#                 print("Error, elige bien las opciones!")  # Mostrar el mensaje en caso de error
-#     return board
 
 def uniTest():
-    algoritmo = 2
+    algoritmo = 1
     dificultad = 3
     modo = 2
 
     # Genera un tablero válido con solución garantizada
-    board = generate_valid_sudoku(dificultad, algoritmo)
+    # board = generate_valid_sudoku(dificultad, algoritmo)
+    board = medir_tiempo_ejecucion(
+        generate_valid_sudoku, dificultad, algoritmo)
 
     if modo == 1:
         print('resolvelo vos capo')
     else:
         # Resuelve el Sudoku con el algoritmo seleccionado
-        print("Resolviendo el Sudoku automáticamente...")
         if algoritmo == 1:
-            back_tracking(board)
+            # medir_tiempo_ejecucion(back_tracking(board))
+            medir_tiempo_ejecucion(back_tracking, board)
         else:
             # Implementar algoritmo Branch and Bound si es necesario
-            branch_and_bound(board)
-        print_board(board)
-        print("¡Sudoku resuelto!")
+            # medir_tiempo_ejecucion(branch_and_bound(board))
+            medir_tiempo_ejecucion(branch_and_bound, board)
+        # print_board(board)
     quit()
-    
-    
-def main():
-    uniTest() # Para no volvernos locos
-    algoritmo = valid_input("Ingrese el algoritmo a utilizar \n 1. Backtracking \n 2. Branch and Bound \n", [1, 2])
 
-    dificultad = valid_input("Ingrese la dificultad del Sudoku \n 1. Fácil \n 2. Medio \n 3. Difícil \n", [1, 2, 3])
-    
+
+def main():
+    uniTest()  # Para no volvernos locos
+    algoritmo = valid_input(
+        "Ingrese el algoritmo a utilizar \n 1. Backtracking \n 2. Branch and Bound \n", [1, 2])
+
+    dificultad = valid_input(
+        "Ingrese la dificultad del Sudoku \n 1. Fácil \n 2. Medio \n 3. Difícil \n", [1, 2, 3])
+
     # Genera un tablero válido con solución garantizada
     board = generate_valid_sudoku(dificultad, algoritmo)
-    print_board(board)
-    
-    modo = valid_input("Ingrese el modo de reseolver el juego \n 1. Manual \n 2. Automatico AI \n", [1, 2])
+    # print_board(board)
+
+    modo = valid_input(
+        "Ingrese el modo de reseolver el juego \n 1. Manual \n 2. Automatico AI \n", [1, 2])
 
     if modo == 1:
         print('resolvelo vos capo')
     else:
         # Resuelve el Sudoku con el algoritmo seleccionado
-        print("Resolviendo el Sudoku automáticamente...")
         if algoritmo == 1:
             back_tracking(board)
         else:
             # Implementar algoritmo Branch and Bound si es necesario
             branch_and_bound(board)
         print_board(board)
-        print("¡Sudoku resuelto!")
 
 
 if __name__ == '__main__':
