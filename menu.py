@@ -15,7 +15,7 @@ def is_safe(board, row, col, num):
         return False
 
     # Verificar columna
-    for r in range(tamaño_tablero):
+    for r in range(CUADRADO):
         if board[r][col] == num:
             return False
 
@@ -62,14 +62,16 @@ def auto_gen_board(dificultad):
 def generar_tablero(modo, dificultad, algoritmo):
     if modo == 1:
         board = user_gen_board()
+        print(board)
+        quit()
         ## Tenemos que resolver de punta a punta el board con algun algo para
         ##  ver si se puede o no resolver
         ##is_board_valid = validate_board(board)
     else:
         if(algoritmo == 1):
             board = auto_gen_board(dificultad)
-        else:
-            board = auto_gen_board_bt(dificultad)
+        # else:
+            # board = auto_gen_board_bt(dificultad)
 
 def main():
     algoritmo = int(input("Ingrese el algoritmo a utilizar \n 1. Backtracking \n 2. Branch and Bound \n"))

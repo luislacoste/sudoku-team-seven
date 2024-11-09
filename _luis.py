@@ -19,7 +19,7 @@ def print_board(board, options=None):
                 cell_options = options.get((i, j), []) if options else []
                 print(f"({','.join(map(str, cell_options))})", end=" ")
         print()
-    time.sleep(0.3)  # Pausar para visualizar el progreso
+    time.sleep(0.5)  # Pausar para visualizar el progreso
 
 
 def eliminar_numeros(tablero, numeros_eliminar):
