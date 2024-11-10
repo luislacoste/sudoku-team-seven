@@ -19,7 +19,7 @@ def print_board(board, options=None):
                 cell_options = options.get((i, j), []) if options else []
                 print(f"({','.join(map(str, cell_options))})", end=" ")
         print()
-    time.sleep(0.5)  # Pausar para visualizar el progreso
+    time.sleep(0.03)  # Pausar para visualizar el progreso
 
 
 def eliminar_numeros(tablero, numeros_eliminar):
@@ -153,7 +153,9 @@ def main():
     algo = 2
     modo = 2
     dificultad = 1
-    board = generar_tablero(modo, dificultad, algo)
+    # board = generar_tablero(modo, dificultad, algo)
+    board = [[9, 0, 0, 6, 0, 0, 2, 0, 8], [0, 0, 0, 0, 0, 9, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0], [6, 8, 0, 0, 0, 0, 0, 0, 0], [
+        0, 0, 7, 0, 0, 0, 0, 0, 0], [0, 0, 0, 2, 0, 0, 0, 7, 3], [7, 5, 9, 0, 0, 0, 8, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 7, 0, 0, 0, 0, 5]]
     print_board(board)
     branch_and_bound_sudoku(board)
 
