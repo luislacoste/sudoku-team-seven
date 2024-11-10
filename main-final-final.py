@@ -9,6 +9,7 @@ CUADRADO = 9
 SUBCUADRO = 3
 
 
+
 def medir_tiempo_ejecucion(func, *args, **kwargs):
     # Captura el tiempo antes de ejecutar la función
     inicio = time.time()
@@ -27,33 +28,33 @@ def medir_tiempo_ejecucion(func, *args, **kwargs):
     return resultado
 
 
-def print_board(board):
-    time.sleep(0.3)  # Pausar para visualizar el progreso
+def print_tablero(tablero):
+    time.sleep(0.03)  # Pausar para visualizar el progreso
 
     os.system('clear' if os.name == 'posix' else 'cls')  # Limpiar pantalla
-    for i in range(len(board)):
+    for i in range(len(tablero)):
         if i % 3 == 0 and i != 0:
             print("------------------------")  # Separación de subcuadros
 
-        for j in range(len(board[0])):
+        for j in range(len(tablero[0])):
             if j % 3 == 0 and j != 0:
                 print(" | ", end="")  # Separación de subcuadros en columnas
             if j == 8:
-                print(f"\033[92m{board[i][j]}\033[0m")  # Fin de la fila
+                print(f"\033[92m{tablero[i][j]}\033[0m")  # Fin de la fila
             else:
-                # print(str(board[i][j]) + " ", end="")  # Imprime el número con un espacio
-                print(f"\033[92m{board[i][j]}\033[0m", end=" ")
+                # print(str(tablero[i][j]) + " ", end="")  # Imprime el número con un espacio
+                print(f"\033[92m{tablero[i][j]}\033[0m", end=" ")
 
 
 # Falta comentarios
-def get_least_options_cell(board):
+def get_least_options_cell(tablero):
     min_options = CUADRADO + 1
     best_cell = None
     for row in range(CUADRADO):
         for col in range(CUADRADO):
-            if board[row][col] == 0:
+            if tablero[row][col] == 0:
                 options = sum(1 for num in range(1, CUADRADO + 1)
-                              if es_valido(board, row, col, num))
+                              if es_valido(tablero, row, col, num))
                 if options < min_options:
                     min_options = options
                     best_cell = (row, col)
@@ -61,6 +62,7 @@ def get_least_options_cell(board):
 
 
 def branch_and_bound(tablero, generando=False):
+    # if generando == False: print_tablero(tablero)
     empty_location, min_options = get_least_options_cell(tablero)
     if empty_location is None:
         return True  # Si no hay celdas vacías, se encontró una solución
@@ -77,8 +79,8 @@ def branch_and_bound(tablero, generando=False):
 
     # Intentar números del 1 al 9
     for num in range(1, CUADRADO + 1):
+        
         if es_valido(tablero, row, col, num):
-            # if generando == False: print_board(tablero)
             tablero[row][col] = num
 
             # Recursivamente llamar a la función para el siguiente paso
@@ -87,21 +89,20 @@ def branch_and_bound(tablero, generando=False):
 
             # Deshacer la asignación (backtrack)
             tablero[row][col] = 0
-            # if generando == False: print_board(tablero)
 
     return False
 
 
-def es_valido(board, row, col, num):
+def es_valido(tablero, row, col, num):
     # Verifica que la celda no contenga numero
-    if board[row][col] != 0:
+    if tablero[row][col] != 0:
         return False
     # Verificar fila
-    if num in board[row]:
+    if num in tablero[row]:
         return False
     # Verificar columna
     for r in range(CUADRADO):
-        if board[r][col] == num:
+        if tablero[r][col] == num:
             return False
 
     # Verificar subcuadro
@@ -109,22 +110,25 @@ def es_valido(board, row, col, num):
     start_col = col - col % SUBCUADRO
     for r in range(SUBCUADRO):
         for c in range(SUBCUADRO):
-            if board[start_row + r][start_col + c] == num:
+            if tablero[start_row + r][start_col + c] == num:
                 return False
     return True
 
 
 # Falta comentarios
-def back_tracking(tablero):
+def back_tracking(tablero, generando=False):
+
+    # if generando == False: print_tablero(tablero)
+
     for fila in range(CUADRADO):
-        # print_board(tablero)
         for columna in range(CUADRADO):
             if tablero[fila][columna] == 0:
                 numeros = list(range(1, 10))
                 for num in numeros:
+
                     if es_valido(tablero, fila, columna, num):
                         tablero[fila][columna] = num
-                        if back_tracking(tablero):
+                        if back_tracking(tablero, generando):
                             return tablero
                         tablero[fila][columna] = 0
                 return False
@@ -142,28 +146,30 @@ def eliminar_numeros(tablero, numeros_eliminar):
 
 def generate_valid_sudoku(dificultad, algoritmo):
     # Generar tablero vacío lista de listas
-    board = [[0] * CUADRADO for _ in range(CUADRADO)]
+    tablero = [[0] * CUADRADO for _ in range(CUADRADO)]
 
-    # Definir cantidad de números a completar
-    if dificultad == 1:
-        numeros_completos = random.randint(35, 50)
-    elif dificultad == 2:
-        numeros_completos = random.randint(22, 34)
-    elif dificultad == 3:
-        numeros_completos = random.randint(10, 21)
-    numeros_eliminar = 81 - numeros_completos
+    # # Definir cantidad de números a completar
+    # if dificultad == 1:
+    #     numeros_completos = random.randint(35, 50)
+    # elif dificultad == 2:
+    #     numeros_completos = random.randint(22, 34)
+    # elif dificultad == 3:
+    #     numeros_completos = random.randint(10, 21)
+    # numeros_eliminar = 81 - numeros_completos
+
+    numeros_eliminar = 71
 
     # Crea el tablero con el algoritmo elegido
     if algoritmo == 1:
         # Tablero generado con backtracking
-        back_tracking(board)
+        back_tracking(tablero, generando=True)
     else:
         # Tablero generado con branch and bound
-        branch_and_bound(board, generando=True)
+        branch_and_bound(tablero, generando=True)
 
     # Eliminar números para generar tablero con dificultad
-    eliminar_numeros(board, numeros_eliminar)
-    return board
+    eliminar_numeros(tablero, numeros_eliminar)
+    return tablero
 
 
 def valid_input(prompt, valid_choices):
@@ -183,22 +189,32 @@ def uniTest():
     modo = 2
 
     # Genera un tablero válido con solución garantizada
-    # board = generate_valid_sudoku(dificultad, algoritmo)
-    board = medir_tiempo_ejecucion(
+    # tablero = generate_valid_sudoku(dificultad, algoritmo)
+    print('BT')
+    tablero = medir_tiempo_ejecucion(
         generate_valid_sudoku, dificultad, algoritmo)
+    
+    print('BB')
+    algoritmo = 2
+    tablero = medir_tiempo_ejecucion(
+        generate_valid_sudoku, dificultad, algoritmo)
+
+    print('---------------------------------')
 
     if modo == 1:
         print('resolvelo vos capo')
     else:
+        print('BT')
         # Resuelve el Sudoku con el algoritmo seleccionado
-        if algoritmo == 1:
-            # medir_tiempo_ejecucion(back_tracking(board))
-            medir_tiempo_ejecucion(back_tracking, board)
-        else:
-            # Implementar algoritmo Branch and Bound si es necesario
-            # medir_tiempo_ejecucion(branch_and_bound(board))
-            medir_tiempo_ejecucion(branch_and_bound, board)
-        # print_board(board)
+        # if algoritmo == 1:
+        # medir_tiempo_ejecucion(back_tracking(tablero))
+        medir_tiempo_ejecucion(back_tracking, tablero)
+        print('BB')
+        # else:
+        # Implementar algoritmo Branch and Bound si es necesario
+        # medir_tiempo_ejecucion(branch_and_bound(tablero))
+        medir_tiempo_ejecucion(branch_and_bound, tablero)
+        # print_tablero(tablero)
     quit()
 
 
@@ -211,8 +227,8 @@ def main():
         "Ingrese la dificultad del Sudoku \n 1. Fácil \n 2. Medio \n 3. Difícil \n", [1, 2, 3])
 
     # Genera un tablero válido con solución garantizada
-    board = generate_valid_sudoku(dificultad, algoritmo)
-    # print_board(board)
+    tablero = generate_valid_sudoku(dificultad, algoritmo)
+    # print_tablero(tablero)
 
     modo = valid_input(
         "Ingrese el modo de reseolver el juego \n 1. Manual \n 2. Automatico AI \n", [1, 2])
@@ -222,11 +238,11 @@ def main():
     else:
         # Resuelve el Sudoku con el algoritmo seleccionado
         if algoritmo == 1:
-            back_tracking(board)
+            back_tracking(tablero)
         else:
             # Implementar algoritmo Branch and Bound si es necesario
-            branch_and_bound(board)
-        print_board(board)
+            branch_and_bound(tablero)
+        print_tablero(tablero)
 
 
 if __name__ == '__main__':
