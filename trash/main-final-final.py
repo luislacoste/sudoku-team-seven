@@ -8,6 +8,8 @@ CUADRADO = 9
 # Tamaño de cada subcuadro
 SUBCUADRO = 3
 
+movimientos = 0
+
 
 
 def medir_tiempo_ejecucion(func, *args, **kwargs):
@@ -79,7 +81,7 @@ def branch_and_bound(tablero, generando=False):
 
     # Intentar números del 1 al 9
     for num in range(1, CUADRADO + 1):
-        
+
         if es_valido(tablero, row, col, num):
             tablero[row][col] = num
 
@@ -116,7 +118,7 @@ def es_valido(tablero, row, col, num):
 
 
 # Falta comentarios
-def back_tracking(tablero, generando=False):
+def back_tracking(tablero, generando=False, movimientos=[0]):
 
     # if generando == False: print_tablero(tablero)
 
@@ -124,11 +126,14 @@ def back_tracking(tablero, generando=False):
         for columna in range(CUADRADO):
             if tablero[fila][columna] == 0:
                 numeros = list(range(1, 10))
+                if generando:
+                    random.shuffle(numeros)
                 for num in numeros:
+                    movimientos[0] += 1  # Incrementamos el contador
 
                     if es_valido(tablero, fila, columna, num):
                         tablero[fila][columna] = num
-                        if back_tracking(tablero, generando):
+                        if back_tracking(tablero, generando, movimientos):
                             return tablero
                         tablero[fila][columna] = 0
                 return False
@@ -136,7 +141,7 @@ def back_tracking(tablero, generando=False):
 
 
 def eliminar_numeros(tablero, numeros_eliminar):
-    casillas = [(i, j) for i in range(9) for j in range(9)]
+    casillas = [(i, j) for i in range(CUADRADO) for j in range(CUADRADO)]
     random.shuffle(casillas)
     for i in range(numeros_eliminar):
         fila, columna = casillas[i]
@@ -148,16 +153,15 @@ def generate_valid_sudoku(dificultad, algoritmo):
     # Generar tablero vacío lista de listas
     tablero = [[0] * CUADRADO for _ in range(CUADRADO)]
 
-    # # Definir cantidad de números a completar
-    # if dificultad == 1:
-    #     numeros_completos = random.randint(35, 50)
-    # elif dificultad == 2:
-    #     numeros_completos = random.randint(22, 34)
-    # elif dificultad == 3:
-    #     numeros_completos = random.randint(10, 21)
-    # numeros_eliminar = 81 - numeros_completos
+    # Definir cantidad de números a completar
+    if dificultad == 1:
+        numeros_completos = random.randint(35, 50)
+    elif dificultad == 2:
+        numeros_completos = random.randint(22, 34)
+    elif dificultad == 3:
+        numeros_completos = random.randint(10, 21)
+    numeros_eliminar = 81 - numeros_completos
 
-    numeros_eliminar = 71
 
     # Crea el tablero con el algoritmo elegido
     if algoritmo == 1:
@@ -190,31 +194,97 @@ def uniTest():
 
     # Genera un tablero válido con solución garantizada
     # tablero = generate_valid_sudoku(dificultad, algoritmo)
-    print('BT')
-    tablero = medir_tiempo_ejecucion(
-        generate_valid_sudoku, dificultad, algoritmo)
+    # print('BT')
+    # tablero = medir_tiempo_ejecucion(
+    #     generate_valid_sudoku, dificultad, algoritmo)
     
-    print('BB')
-    algoritmo = 2
-    tablero = medir_tiempo_ejecucion(
-        generate_valid_sudoku, dificultad, algoritmo)
+
+    # print('BB')
+    # # algoritmo = 2
+    # tablero = medir_tiempo_ejecucion(
+    #     generate_valid_sudoku, dificultad, algoritmo)
+    
+    # tablero = [[4, 2, 0, 9, 0, 3, 8, 0, 6], [9, 1, 0, 0, 8, 0, 2, 0, 4], [6, 0, 3, 0, 5, 0, 0, 0, 9], [0, 7, 1, 0, 4, 0, 6, 9, 0], [
+    # 3, 0, 9, 0, 2, 6, 0, 8, 5], [0, 0, 0, 0, 9, 0, 3, 0, 0], [0, 9, 0, 0, 6, 0, 4, 0, 0], [1, 0, 0, 0, 0, 9, 5, 0, 0], [7, 0, 4, 5, 0, 8, 0, 0, 0]]
+    # print('BT')
+    # medir_tiempo_ejecucion(back_tracking, tablero)
+    
+    # tablero = [[4, 2, 0, 9, 0, 3, 8, 0, 6], [9, 1, 0, 0, 8, 0, 2, 0, 4], [6, 0, 3, 0, 5, 0, 0, 0, 9], [0, 7, 1, 0, 4, 0, 6, 9, 0], [
+    #     3, 0, 9, 0, 2, 6, 0, 8, 5], [0, 0, 0, 0, 9, 0, 3, 0, 0], [0, 9, 0, 0, 6, 0, 4, 0, 0], [1, 0, 0, 0, 0, 9, 5, 0, 0], [7, 0, 4, 5, 0, 8, 0, 0, 0]]
+    # print('BB')
+    # medir_tiempo_ejecucion(branch_and_bound, tablero)
+    
+    # print('---------------------------------')
+
+    # tablero = [[0, 3, 5, 0, 0, 2, 0, 0, 9], [0, 4, 0, 8, 3, 0, 0, 0, 2], [7, 0, 0, 0, 0, 9, 0, 1, 6], [0, 9, 0, 1, 0, 7, 2, 3, 8], [
+    #     0, 0, 7, 0, 8, 0, 0, 0, 0], [0, 0, 0, 3, 0, 0, 5, 0, 7], [0, 0, 0, 4, 0, 5, 0, 7, 3], [0, 0, 1, 7, 0, 3, 9, 2, 4], [4, 7, 3, 0, 0, 8, 0, 6, 0]]
+    # print('BT')
+    # medir_tiempo_ejecucion(back_tracking, tablero)
+    
+    # tablero = [[0, 3, 5, 0, 0, 2, 0, 0, 9], [0, 4, 0, 8, 3, 0, 0, 0, 2], [7, 0, 0, 0, 0, 9, 0, 1, 6], [0, 9, 0, 1, 0, 7, 2, 3, 8], [
+    #     0, 0, 7, 0, 8, 0, 0, 0, 0], [0, 0, 0, 3, 0, 0, 5, 0, 7], [0, 0, 0, 4, 0, 5, 0, 7, 3], [0, 0, 1, 7, 0, 3, 9, 2, 4], [4, 7, 3, 0, 0, 8, 0, 6, 0]]
+    # print('BB')
+    # medir_tiempo_ejecucion(branch_and_bound, tablero)
+    # print('---------------------------------')
+    
+    # tablero = [[0, 2, 0, 5, 3, 0, 0, 8, 4], [0, 0, 3, 6, 0, 9, 2, 0, 0], [0, 0, 0, 0, 2, 7, 0, 0, 3], [0, 0, 0, 0, 2, 7, 0, 0, 3], [0, 0, 0, 0, 0, 6, 0, 0, 0], [
+    #     0, 0, 0, 0, 0, 0, 0, 0, 5], [0, 4, 8, 0, 0, 0, 1, 0, 6], [4, 5, 0, 0, 0, 0, 3, 0, 8], [9, 8, 0, 0, 0, 0, 0, 6, 1], [7, 0, 0, 0, 0, 5, 4, 0, 9]]
+    # print('BT')
+    # medir_tiempo_ejecucion(back_tracking, tablero)
+    
+    # tablero = [[0, 2, 0, 5, 3, 0, 0, 8, 4], [0, 0, 3, 6, 0, 9, 2, 0, 0], [0, 0, 0, 0, 2, 7, 0, 0, 3], [0, 0, 0, 0, 2, 7, 0, 0, 3], [0, 0, 0, 0, 0, 6, 0, 0, 0], [
+    #     0, 0, 0, 0, 0, 0, 0, 0, 5], [0, 4, 8, 0, 0, 0, 1, 0, 6], [4, 5, 0, 0, 0, 0, 3, 0, 8], [9, 8, 0, 0, 0, 0, 0, 6, 1], [7, 0, 0, 0, 0, 5, 4, 0, 9]]
+    # print('BB')
+    # medir_tiempo_ejecucion(branch_and_bound, tablero)
+    # print('---------------------------------')
+    
+    # tablero = [[0, 8, 0, 0, 0, 3, 2, 0, 0], [4, 0, 0, 0, 0, 5, 0, 0, 0], [0, 0, 7, 2, 4, 0, 0, 1, 0], [9, 0, 0, 4, 1, 0, 8, 0, 0], [
+    #     0, 0, 0, 0, 5, 0, 0, 0, 0], [0, 0, 3, 0, 0, 0, 0, 0, 9], [3, 0, 0, 8, 9, 0, 1, 0, 0], [0, 6, 0, 0, 0, 0, 0, 7, 0], [0, 0, 0, 0, 0, 2, 0, 0, 0]]
+    # print('BT')
+    # medir_tiempo_ejecucion(back_tracking, tablero)
+    
+    # tablero = [[0, 8, 0, 0, 0, 3, 2, 0, 0], [4, 0, 0, 0, 0, 5, 0, 0, 0], [0, 0, 7, 2, 4, 0, 0, 1, 0], [9, 0, 0, 4, 1, 0, 8, 0, 0], [
+    #     0, 0, 0, 0, 5, 0, 0, 0, 0], [0, 0, 3, 0, 0, 0, 0, 0, 9], [3, 0, 0, 8, 9, 0, 1, 0, 0], [0, 6, 0, 0, 0, 0, 0, 7, 0], [0, 0, 0, 0, 0, 2, 0, 0, 0]]
+    # print('BB')
+    # medir_tiempo_ejecucion(branch_and_bound, tablero)
+    # print('---------------------------------')
+
+    # tablero = [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 1, 0, 9, 0, 0, 6, 0], [0, 0, 4, 0, 0, 5, 0, 0, 2], [0, 0, 2, 0, 0, 8, 0, 0, 1], [7, 3, 0, 0, 0, 0, 0, 0, 0],
+    #            [1, 0, 0, 0, 0, 9, 3, 0, 0], [0, 0, 0, 0, 7, 0, 0, 0, 3], [0, 0, 9, 0, 4, 0, 0, 0, 5], [0, 4, 7, 0, 6, 0, 2, 0, 0]]
+    # print('BT')
+    # medir_tiempo_ejecucion(back_tracking, tablero)
+    
+    # tablero = [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 1, 0, 9, 0, 0, 6, 0], [0, 0, 4, 0, 0, 5, 0, 0, 2], [0, 0, 2, 0, 0, 8, 0, 0, 1], [7, 3, 0, 0, 0, 0, 0, 0, 0],
+    #            [1, 0, 0, 0, 0, 9, 3, 0, 0], [0, 0, 0, 0, 7, 0, 0, 0, 3], [0, 0, 9, 0, 4, 0, 0, 0, 5], [0, 4, 7, 0, 6, 0, 2, 0, 0]]
+    # print('BB')
+    # medir_tiempo_ejecucion(branch_and_bound, tablero)
 
     print('---------------------------------')
+    print('RANDOM')
+    # tablero = generate_valid_sudoku(dificultad, algoritmo)
+    
+    # tablero = [[9, 0, 0, 6, 0, 0, 2, 0, 8], [0, 0, 0, 0, 0, 9, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0], [6, 8, 0, 0, 0, 0, 0, 0, 0], [
+    #     0, 0, 7, 0, 0, 0, 0, 0, 0], [0, 0, 0, 2, 0, 0, 0, 7, 3], [7, 5, 9, 0, 0, 0, 8, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 7, 0, 0, 0, 0, 5]]
+    
+    tablero = [[0, 0, 0, 0, 0, 0, 6, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [5, 0, 6, 7, 0, 0, 0, 0, 0], [0, 0, 5, 0, 0, 0, 0, 0, 0], [
+        0, 0, 7, 0, 8, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 7, 0, 0, 0], [9, 0, 0, 4, 0, 0, 8, 0, 0], [0, 0, 0, 0, 0, 0, 0, 7, 0]] 
+    tablero_save = [row[:] for row in tablero]
+    tablero_save2 = [row[:] for row in tablero]
+    print(tablero_save2)
+    print('---------------------------------')
 
-    if modo == 1:
-        print('resolvelo vos capo')
-    else:
-        print('BT')
-        # Resuelve el Sudoku con el algoritmo seleccionado
-        # if algoritmo == 1:
-        # medir_tiempo_ejecucion(back_tracking(tablero))
-        medir_tiempo_ejecucion(back_tracking, tablero)
-        print('BB')
-        # else:
-        # Implementar algoritmo Branch and Bound si es necesario
-        # medir_tiempo_ejecucion(branch_and_bound(tablero))
-        medir_tiempo_ejecucion(branch_and_bound, tablero)
-        # print_tablero(tablero)
+    print('BT')
+    movimientos = [0]  # Iniciar contador en una lista
+
+    medir_tiempo_ejecucion(back_tracking, tablero, movimientos=movimientos)
+    print("Número de movimientos:", movimientos[0])
+
+    print('BB')
+    medir_tiempo_ejecucion(branch_and_bound, tablero_save)
+    
+
+    
+
     quit()
 
 
