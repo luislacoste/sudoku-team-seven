@@ -12,7 +12,7 @@ CONTADOR = [0]
 
 
 def print_tablero(tablero, borrar_pantalla=True):
-    time.sleep(0.03)  # Pausar para visualizar el progreso
+    time.sleep(0.07)  # Pausar para visualizar el progreso
     if borrar_pantalla:
         os.system('clear' if os.name == 'posix' else 'cls')  # Limpiar pantalla
 
@@ -35,6 +35,25 @@ def print_tablero(tablero, borrar_pantalla=True):
                 print("0", end=" " if j != 8 else "\n")
 
 
+def resuelve_manual(tablero):
+    termino = True
+    while termino:
+        print_tablero(tablero, False)
+        fila = int(input("Ingrese la fila: ")) - 1
+        columna = int(input("Ingrese la columna: ")) - 1
+        if fila < 0 or fila >= CUADRADO or columna < 0 or columna >= CUADRADO or tablero[fila][columna] != 0:
+            print("Movimiento inválido, intente de nuevo.")
+            continue
+        numero = int(input("Ingrese el número: "))
+        if es_valido(tablero, fila, columna, numero):
+            tablero[fila][columna] = numero
+        else:
+            print("Movimiento inválido, intente de nuevo.")
+        if all(all(num != 0 for num in row) for row in tablero):
+            print_tablero(tablero)
+            print("¡Felicidades! Has resuelto el Sudoku.")
+            termino = False
+
 
 def get_least_options_cell(tablero):
     min_options = CUADRADO + 1
@@ -42,7 +61,8 @@ def get_least_options_cell(tablero):
     for row in range(CUADRADO):
         for col in range(CUADRADO):
             if tablero[row][col] == 0:
-                options = sum(1 for num in range(1, CUADRADO + 1) if es_valido(tablero, row, col, num))
+                options = sum(1 for num in range(1, CUADRADO + 1)
+                              if es_valido(tablero, row, col, num))
                 if options < min_options:
                     min_options = options
                     best_cell = (row, col)
@@ -50,6 +70,7 @@ def get_least_options_cell(tablero):
                 if min_options == 1:
                     return best_cell, min_options
     return best_cell, min_options
+
 
 def branch_and_bound(tablero):
     CONTADOR[0] += 1
@@ -105,7 +126,7 @@ def back_tracking(tablero, generando=False):
     if not generando:
         CONTADOR[0] += 1
         print_tablero(tablero)
-        
+
     for fila in range(CUADRADO):
         for columna in range(CUADRADO):
             if tablero[fila][columna] == 0:
@@ -161,13 +182,11 @@ def valid_input(prompt, valid_choices):
             return choice
         except ValueError:
             print("Error, elige bien las opciones!")
-            
-            
+
 
 def main():
     dificultad = valid_input(
         "Ingrese la dificultad del Sudoku \n 1. Fácil \n 2. Medio \n 3. Difícil \n 4. Ejemplos \n", [1, 2, 3, 4])
-
 
     if dificultad == 4:
         bt_o_bb = valid_input(
@@ -182,17 +201,19 @@ def main():
     else:
         # Genera un tablero válido con solución garantizada
         tablero = generate_valid_sudoku(dificultad)
-    
+
     os.system('clear' if os.name == 'posix' else 'cls')
     print("Tablero a resolver:")
     print_tablero(tablero, False)
-    
-    if dificultad != 4:
-        algoritmo = valid_input(
-            "Ingrese el algoritmo a utilizar \n 1. Backtracking \n 2. Branch and Bound \n", [1, 2])
 
+    if dificultad != 4:
         modo = valid_input(
             "Ingrese el modo de reseolver el juego \n 1. Manual \n 2. Automatico AI \n", [1, 2])
+        if modo == 1:
+            resuelve_manual(tablero)
+            return
+        algoritmo = valid_input(
+            "Ingrese el algoritmo a utilizar \n 1. Backtracking \n 2. Branch and Bound \n", [1, 2])
     else:
         if bt_o_bb == 1:
             input("Presione enter para resolver con Branch & Bound")
@@ -212,24 +233,21 @@ def main():
         algoritmo = bt_o_bb
         modo = 2
 
-    if modo == 1:
-        print('resolvelo vos capo')
+
+
+    # Resuelve el Sudoku con el algoritmo seleccionado
+    if algoritmo == 1:
+        back_tracking(tablero)
     else:
-        # Resuelve el Sudoku con el algoritmo seleccionado
-        if algoritmo == 1:
-            back_tracking(tablero)
+        como_imprimir = valid_input(
+            "Ingrese como quiere ver el tablero \n 1. Normal \n 2. Avanzado \n", [1, 2])
+        # Implementar algoritmo Branch and Bound si es necesario
+        if como_imprimir == 1:
+            branch_and_bound(tablero)
         else:
-            como_imprimir = valid_input(
-                "Ingrese como quiere ver el tablero \n 1. Normal \n 2. Avanzado \n", [1, 2])
-            # Implementar algoritmo Branch and Bound si es necesario
-            if como_imprimir == 1:
-                branch_and_bound(tablero)
-            else:
-                pprint_bb.branch_and_bound_sudoku(tablero)
-        print_tablero(tablero)
-        
-        
-        
+            pprint_bb.branch_and_bound_sudoku(tablero)
+    print_tablero(tablero)
+
 
 if __name__ == '__main__':
     main()

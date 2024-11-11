@@ -15,21 +15,6 @@ def medir_tiempo_ejecucion(func, *args, **kwargs):
     return tiempo_ejecucion, resultado
 
 
-def print_tablero(tablero):
-    time.sleep(0.03)
-    os.system('clear' if os.name == 'posix' else 'cls')
-    for i in range(len(tablero)):
-        if i % 3 == 0 and i != 0:
-            print("------------------------")
-        for j in range(len(tablero[0])):
-            if j % 3 == 0 and j != 0:
-                print(" | ", end="")
-            if j == 8:
-                print(f"\033[92m{tablero[i][j]}\033[0m")
-            else:
-                print(f"\033[92m{tablero[i][j]}\033[0m", end=" ")
-
-
 def get_least_options_cell(tablero):
     min_options = CUADRADO + 1
     best_cell = None
