@@ -30,7 +30,7 @@ def print_tablero(tablero):
                 print(f"\033[92m{tablero[i][j]}\033[0m", end=" ")
 
 
-def get_least_options_cell(tablero, operaciones):
+def get_least_options_cell(tablero):
     min_options = CUADRADO + 1
     best_cell = None
     for row in range(CUADRADO):
@@ -38,7 +38,6 @@ def get_least_options_cell(tablero, operaciones):
             if tablero[row][col] == 0:
                 options = 0
                 for num in range(1, CUADRADO + 1):
-                    operaciones[0] += 1  # Increment operations count
                     if es_valido(tablero, row, col, num):
                         options += 1
                 if options < min_options:
@@ -49,8 +48,8 @@ def get_least_options_cell(tablero, operaciones):
     return best_cell, min_options
 
 
-def branch_and_bound(tablero, movimientos=[0], operaciones=[0]):
-    empty_location, min_options = get_least_options_cell(tablero, operaciones)
+def branch_and_bound(tablero):
+    empty_location, min_options = get_least_options_cell(tablero)
     if empty_location is None:
         return True
     if min_options == 0:
@@ -58,11 +57,9 @@ def branch_and_bound(tablero, movimientos=[0], operaciones=[0]):
 
     row, col = empty_location
     for num in range(1, CUADRADO + 1):
-        operaciones[0] += 1  # Increment operations for es_valido check
         if es_valido(tablero, row, col, num):
             tablero[row][col] = num
-            movimientos[0] += 1
-            if branch_and_bound(tablero, movimientos, operaciones):
+            if branch_and_bound(tablero):
                 return True
             tablero[row][col] = 0
     return False
@@ -86,20 +83,15 @@ def es_valido(tablero, row, col, num):
     return True
 
 
-def back_tracking(tablero, generando=False, movimientos=[0], operaciones=[0]):
+def back_tracking(tablero):
     for fila in range(CUADRADO):
         for columna in range(CUADRADO):
             if tablero[fila][columna] == 0:
                 numeros = list(range(1, 10))
-                if generando:
-                    random.shuffle(numeros)
                 for num in numeros:
-                    # Increment operations for es_valido check
-                    operaciones[0] += 1
                     if es_valido(tablero, fila, columna, num):
                         tablero[fila][columna] = num
-                        movimientos[0] += 1
-                        if back_tracking(tablero, generando, movimientos, operaciones):
+                        if back_tracking(tablero):
                             return True
                         tablero[fila][columna] = 0
                 return False
