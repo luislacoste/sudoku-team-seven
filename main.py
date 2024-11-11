@@ -30,7 +30,8 @@ def print_tablero(tablero, borrar_pantalla=True):
 
             # Aplicar color verde si el número no es cero
             if tablero[i][j] != 0:
-                print(f"\033[92m{tablero[i][j]}\033[0m",end=" " if j != 8 else "\n")
+                print(f"\033[92m{tablero[i][j]}\033[0m",
+                      end=" " if j != 8 else "\n")
             else:
                 print("0", end=" " if j != 8 else "\n")
 
@@ -41,9 +42,12 @@ def resuelve_manual(tablero):
         print_tablero(tablero, False)
         fila = int(input("Ingrese la fila: ")) - 1
         columna = int(input("Ingrese la columna: ")) - 1
+
+        # Verifica que las coordenadas estén dentro de los límites y que la casilla esté vacía (0).
         if fila < 0 or fila >= CUADRADO or columna < 0 or columna >= CUADRADO or tablero[fila][columna] != 0:
             print("Movimiento inválido, intente de nuevo.")
             continue
+
         numero = int(input("Ingrese el número: "))
         if es_valido(tablero, fila, columna, numero):
             tablero[fila][columna] = numero
@@ -60,21 +64,27 @@ def get_least_options_cell(tablero):
     best_cell = None
     for row in range(CUADRADO):
         for col in range(CUADRADO):
+            # Recorre cada celda del tablero para encontrar una vacía (con valor 0).
             if tablero[row][col] == 0:
+                # Cuenta las opciones válidas para esta celda.
                 options = sum(1 for num in range(1, CUADRADO + 1)
                               if es_valido(tablero, row, col, num))
+
+                # Si esta celda tiene menos opciones, actualiza el número mínimo y la celda.
                 if options < min_options:
                     min_options = options
                     best_cell = (row, col)
+
                 # Poda: si encontramos una celda con solo una opción, la seleccionamos inmediatamente
                 if min_options == 1:
                     return best_cell, min_options
+
     return best_cell, min_options
 
 
 def branch_and_bound(tablero):
     CONTADOR[0] += 1
-    # print_tablero(tablero)
+    print_tablero(tablero)
     empty_location, min_options = get_least_options_cell(tablero)
     if empty_location is None:
         return True  # Si no hay celdas vacías, se encontró una solución
@@ -100,6 +110,7 @@ def branch_and_bound(tablero):
     return False
 
 
+# Verifica si el número es válido en la posición dada, sin violar las reglas de Sudoku.
 def es_valido(tablero, row, col, num):
     # Verifica que la celda no contenga numero
     if tablero[row][col] != 0:
@@ -203,9 +214,9 @@ def main():
         tablero = generate_valid_sudoku(dificultad)
 
     os.system('clear' if os.name == 'posix' else 'cls')
-    print("Tablero a resolver:")
+    print("---Tablero a resolver--- \n")
     print_tablero(tablero, False)
-
+    print("\n")
     if dificultad != 4:
         modo = valid_input(
             "Ingrese el modo de reseolver el juego \n 1. Manual \n 2. Automatico AI \n", [1, 2])
@@ -220,20 +231,20 @@ def main():
             tiempo_inicio = time.time()
             branch_and_bound(tablero_copia)
             tiempo_final = time.time()
-            print(f"Tiempo de resolucion con Branch & Bound: {tiempo_final - tiempo_inicio}")
+            print(f"Tiempo de resolucion con Branch & Bound: {
+                  tiempo_final - tiempo_inicio}")
             input("Presione enter para resolver con Backtracking")
         else:
             input("Presione enter para resolver con Backtracking")
             tiempo_inicio = time.time()
             back_tracking(tablero_copia)
             tiempo_final = time.time()
-            print(f"Tiempo de resolucion con Backtracking: {tiempo_final - tiempo_inicio}")
+            print(f"Tiempo de resolucion con Backtracking: {
+                  tiempo_final - tiempo_inicio}")
             input("Presione enter para resolver con Branch & Bound")
         CONTADOR[0] = 0
         algoritmo = bt_o_bb
         modo = 2
-
-
 
     # Resuelve el Sudoku con el algoritmo seleccionado
     if algoritmo == 1:
@@ -250,4 +261,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    while True:
+        main()
+        if input("¿Desea jugar de nuevo? (s/n): ").lower() != 's':
+            break
+        os.system('clear' if os.name == 'posix' else 'cls')
