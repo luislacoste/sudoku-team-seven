@@ -193,25 +193,52 @@ def valid_input(prompt, valid_choices):
             return choice
         except ValueError:
             print("Error, elige bien las opciones!")
-
+            
+def generate_manual():
+    while True:
+        tablero = [[0 for i in range(9)] for j in range(9)]
+        print("Ingrese el tablero de Sudoku, si desea dejar una casilla vacía, ingrese 0")
+        for i in range(9):
+            fila = input(f"Ingrese la fila {i + 1}: ")
+            if len(fila) != 9:
+                print("Error, la fila debe tener 9 elementos")
+                return generate_manual()
+            for j in range(9):
+                try:
+                    tablero[i][j] = int(fila[j])
+                except ValueError:
+                    print("Error, ingrese solo números")
+                    return generate_manual()
+        tablero_copia = [row[:] for row in tablero]
+        if(back_tracking(tablero_copia, True)):
+            return tablero
+        else:
+            print("Tablero inválido, intente de nuevo")
 
 def main():
-    dificultad = valid_input(
-        "Ingrese la dificultad del Sudoku \n 1. Fácil \n 2. Medio \n 3. Difícil \n 4. Ejemplos \n", [1, 2, 3, 4])
+    generacion = valid_input(
+        "Ingrese el modo de generación del Sudoku \n 1. Generación aleatoria \n 2. Generación manual \n", [1, 2])
+    
+    if(generacion == 1):
+        dificultad = valid_input(
+            "Ingrese la dificultad del Sudoku \n 1. Fácil \n 2. Medio \n 3. Difícil \n 4. Ejemplos \n", [1, 2, 3, 4])
 
-    if dificultad == 4:
-        bt_o_bb = valid_input(
-            "Ingrese el ejemplo complejo que quiera ver \n 1. Backtracking \n 2. Branch & Bound \n", [1, 2])
-        if bt_o_bb == 1:
-            tablero = [[0, 0, 0, 0, 0, 0, 6, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [5, 0, 6, 7, 0, 0, 0, 0, 0], [0, 0, 5, 0, 0, 0, 0, 0, 0], [
-                0, 0, 7, 0, 8, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 7, 0, 0, 0], [9, 0, 0, 4, 0, 0, 8, 0, 0], [0, 0, 0, 0, 0, 0, 0, 7, 0]]
+        if dificultad == 4:
+            bt_o_bb = valid_input(
+                "Ingrese el ejemplo complejo que quiera ver \n 1. Backtracking \n 2. Branch & Bound \n", [1, 2])
+            if bt_o_bb == 1:
+                tablero = [[0, 0, 0, 0, 0, 0, 6, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [5, 0, 6, 7, 0, 0, 0, 0, 0], [0, 0, 5, 0, 0, 0, 0, 0, 0], [
+                    0, 0, 7, 0, 8, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 7, 0, 0, 0], [9, 0, 0, 4, 0, 0, 8, 0, 0], [0, 0, 0, 0, 0, 0, 0, 7, 0]]
+            else:
+                tablero = [[9, 0, 0, 6, 0, 0, 2, 0, 8], [0, 0, 0, 0, 0, 9, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0], [6, 8, 0, 0, 0, 0, 0, 0, 0], [
+                    0, 0, 7, 0, 0, 0, 0, 0, 0], [0, 0, 0, 2, 0, 0, 0, 7, 3], [7, 5, 9, 0, 0, 0, 8, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 7, 0, 0, 0, 0, 5]]
+            tablero_copia = [row[:] for row in tablero]
         else:
-            tablero = [[9, 0, 0, 6, 0, 0, 2, 0, 8], [0, 0, 0, 0, 0, 9, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0], [6, 8, 0, 0, 0, 0, 0, 0, 0], [
-                0, 0, 7, 0, 0, 0, 0, 0, 0], [0, 0, 0, 2, 0, 0, 0, 7, 3], [7, 5, 9, 0, 0, 0, 8, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 7, 0, 0, 0, 0, 5]]
-        tablero_copia = [row[:] for row in tablero]
+            # Genera un tablero válido con solución garantizada
+            tablero = generate_valid_sudoku(dificultad)
     else:
-        # Genera un tablero válido con solución garantizada
-        tablero = generate_valid_sudoku(dificultad)
+        tablero = generate_manual()
+        dificultad = 1
 
     os.system('clear' if os.name == 'posix' else 'cls')
     print("---Tablero a resolver--- \n")
@@ -219,7 +246,7 @@ def main():
     print("\n")
     if dificultad != 4:
         modo = valid_input(
-            "Ingrese el modo de reseolver el juego \n 1. Manual \n 2. Automatico AI \n", [1, 2])
+            "Ingrese el modo de resolver el juego \n 1. Manual \n 2. Automatico AI \n", [1, 2])
         if modo == 1:
             resuelve_manual(tablero)
             return
